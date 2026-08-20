@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Relay is an AI incident concierge powered by Novu." />
+    <title>Relay — Incident concierge</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <aside class="sidebar" aria-label="Primary navigation">
+        <a class="brand" href="#inbox" aria-label="Relay home">
+          <span class="brand-mark" data-icon="radio"></span>
+          <span class="brand-copy"><strong>Relay</strong><small>Incident concierge</small></span>
+        </a>
+
+        <nav class="primary-nav">
+          <button class="nav-item" data-view="overview" type="button" aria-label="Overview">
+            <span data-icon="layout"></span><span>Overview</span>
+          </button>
+          <button class="nav-item is-active" data-view="inbox" type="button" aria-label="Inbox">
+            <span data-icon="inbox"></span><span>Inbox</span><span class="nav-count" id="nav-count">2</span>
+          </button>
+          <button class="nav-item" data-view="workflows" type="button" aria-label="Workflows">
+            <span data-icon="workflow"></span><span>Workflows</span>
+          </button>
+          <button class="nav-item" data-view="channels" type="button" aria-label="Channels">
+            <span data-icon="send"></span><span>Channels</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-footer">
+          <div class="novu-state">
+            <span class="live-dot"></span>
+            <span><strong id="novu-connection-title">Novu preview</strong><small id="novu-connection-copy">Ready for live credentials</small></span>
+          </div>
+          <button class="nav-item" id="open-settings" type="button" aria-label="Preferences">
+            <span data-icon="settings"></span><span>Preferences</span>
+          </button>
+          <div class="account-row">
+            <span class="avatar">MK</span>
+            <span><strong>Maya Kapoor</strong><small>On-call engineer</small></span>
+            <button class="icon-button" type="button" aria-label="Account menu" data-icon="more"></button>
+          </div>
+        </div>
+      </aside>
+
+      <div class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="view-eyebrow">OPERATIONS</p>
+            <h1 id="view-title">Incident inbox</h1>
+          </div>
+          <div class="top-actions">
+            <button class="status-control" type="button" id="status-control">
+              <span class="live-dot"></span><span>All systems monitored</span>
+            </button>
+            <button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle theme" data-icon="moon"></button>
+            <button class="primary-button" id="create-incident" type="button"><span data-icon="plus"></span><span>Simulate incident</span></button>
+          </div>
+        </header>
+
+        <main id="view-root" tabindex="-1"></main>
+      </div>
+
+      <nav class="mobile-nav" aria-label="Mobile navigation">
+        <button data-view="overview" type="button"><span data-icon="layout"></span><small>Overview</small></button>
+        <button class="is-active" data-view="inbox" type="button"><span data-icon="inbox"></span><small>Inbox</small></button>
+        <button data-view="workflows" type="button"><span data-icon="workflow"></span><small>Flows</small></button>
+        <button data-view="channels" type="button"><span data-icon="send"></span><small>Channels</small></button>
+      </nav>
+
+      <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
+    </div>
+
+    <dialog id="settings-dialog" class="settings-dialog">
+      <form method="dialog" class="dialog-card">
+        <header class="dialog-head">
+          <div><p class="eyebrow">DELIVERY</p><h2>Notification preferences</h2></div>
+          <button class="icon-button" value="cancel" aria-label="Close preferences" data-icon="x"></button>
+        </header>
+        <div id="settings-content"></div>
+      </form>
+    </dialog>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

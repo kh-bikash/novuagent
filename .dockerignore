@@ -1,0 +1,9 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+*.log
+videos/relay-launch/capture
+videos/relay-launch/snapshots*
+videos/relay-launch/.thumbnails
