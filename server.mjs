@@ -1,11 +1,12 @@
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Novu } from '@novu/api';
 
 const port = Number(process.env.PORT || 4173);
 const host = process.env.HOST || '0.0.0.0';
-const root = new URL('.', import.meta.url).pathname.replace(/^\/(.:\/)/, '$1');
+const root = fileURLToPath(new URL('.', import.meta.url));
 const secretKey = process.env.NOVU_SECRET_KEY?.trim();
 const apiUrl = process.env.NOVU_API_URL?.trim() || 'https://api.novu.co';
 const subscriberId = process.env.NOVU_SUBSCRIBER_ID?.trim() || 'on-call:maya';
