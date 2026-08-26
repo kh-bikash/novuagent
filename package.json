@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node server.mjs",
-    "check": "node --check app.js && node --check server.mjs && node --check scripts/record-demo.mjs && node --check scripts/capture-screenshots.mjs",
-    "demo:record": "node scripts/record-demo.mjs",
-    "screenshots": "node scripts/capture-screenshots.mjs"
+    "check": "node --check app.js && node --check server.mjs && node --check scripts/record-demo.mjs",
+    "demo:record": "node scripts/record-demo.mjs"
   },
   "dependencies": {
     "@novu/api": "^3.19.0"

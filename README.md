@@ -463,7 +463,6 @@ PORT=8080 node server.mjs
 | :--- | :--- |
 | `npm start` | Launches the Relay server on port `4173` |
 | `npm run check` | Validates JavaScript syntax across all source code and scripts |
-| `npm run screenshots` | Uses Puppeteer to regenerate high-resolution product photos in `assets/` |
 | `npm run demo:record` | Records a 60fps automated walkthrough video to `videos/` |
 
 ---
@@ -482,7 +481,6 @@ novu/
 │   ├── preferences-modal.png        # Quiet hours & delivery policy dialog
 │   └── workflows-engine.png         # Novu workflow pipeline screenshot
 ├── scripts/                         # Automation & recording tooling
-│   ├── capture-screenshots.mjs      # Automated headless screenshot generator
 │   └── record-demo.mjs              # 60fps automated demo video recorder
 ├── videos/                          # Video artifacts
 │   └── relay-real-workflow-demo.mp4 # Full end-to-end workflow video recording
