@@ -1,89 +1,80 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Relay is an AI incident concierge powered by Novu." />
-    <title>Relay — Incident concierge</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="app" class="app-shell">
-      <aside class="sidebar" aria-label="Primary navigation">
-        <a class="brand" href="#inbox" aria-label="Relay home">
-          <span class="brand-mark" data-icon="radio"></span>
-          <span class="brand-copy"><strong>Relay</strong><small>Incident concierge</small></span>
-        </a>
-
-        <nav class="primary-nav">
-          <button class="nav-item" data-view="overview" type="button" aria-label="Overview">
-            <span data-icon="layout"></span><span>Overview</span>
-          </button>
-          <button class="nav-item is-active" data-view="inbox" type="button" aria-label="Inbox">
-            <span data-icon="inbox"></span><span>Inbox</span><span class="nav-count" id="nav-count">2</span>
-          </button>
-          <button class="nav-item" data-view="workflows" type="button" aria-label="Workflows">
-            <span data-icon="workflow"></span><span>Workflows</span>
-          </button>
-          <button class="nav-item" data-view="channels" type="button" aria-label="Channels">
-            <span data-icon="send"></span><span>Channels</span>
-          </button>
-        </nav>
-
-        <div class="sidebar-footer">
-          <div class="novu-state">
-            <span class="live-dot"></span>
-            <span><strong id="novu-connection-title">Novu preview</strong><small id="novu-connection-copy">Ready for live credentials</small></span>
-          </div>
-          <button class="nav-item" id="open-settings" type="button" aria-label="Preferences">
-            <span data-icon="settings"></span><span>Preferences</span>
-          </button>
-          <div class="account-row">
-            <span class="avatar">MK</span>
-            <span><strong>Maya Kapoor</strong><small>On-call engineer</small></span>
-            <button class="icon-button" type="button" aria-label="Account menu" data-icon="more"></button>
-          </div>
-        </div>
-      </aside>
-
-      <div class="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow" id="view-eyebrow">OPERATIONS</p>
-            <h1 id="view-title">Incident inbox</h1>
-          </div>
-          <div class="top-actions">
-            <button class="status-control" type="button" id="status-control">
-              <span class="live-dot"></span><span>All systems monitored</span>
-            </button>
-            <button class="icon-button" id="theme-toggle" type="button" aria-label="Toggle theme" data-icon="moon"></button>
-            <button class="primary-button" id="create-incident" type="button"><span data-icon="plus"></span><span>Simulate incident</span></button>
-          </div>
-        </header>
-
-        <main id="view-root" tabindex="-1"></main>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Beacon is a focused incident decision workflow powered by Novu.">
+  <title>Beacon — Incident decisions, delivered</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="glow glow-a"></div><div class="glow glow-b"></div>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Beacon home"><span class="brand-mark"><i></i><i></i></span>Beacon</a>
+      <div class="context"><i></i><span>Production</span><b></b><span>Checkout API</span></div>
+      <div class="top-actions">
+        <button class="quiet-btn" id="routing-btn" type="button"><span data-icon="sliders"></span>Routing</button>
+        <button class="primary-btn" id="trigger-btn" type="button"><span data-icon="bolt"></span>Trigger incident</button>
       </div>
-
-      <nav class="mobile-nav" aria-label="Mobile navigation">
-        <button data-view="overview" type="button"><span data-icon="layout"></span><small>Overview</small></button>
-        <button class="is-active" data-view="inbox" type="button"><span data-icon="inbox"></span><small>Inbox</small></button>
-        <button data-view="workflows" type="button"><span data-icon="workflow"></span><small>Flows</small></button>
-        <button data-view="channels" type="button"><span data-icon="send"></span><small>Channels</small></button>
-      </nav>
-
-      <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="true"></div>
-    </div>
-
-    <dialog id="settings-dialog" class="settings-dialog">
-      <form method="dialog" class="dialog-card">
-        <header class="dialog-head">
-          <div><p class="eyebrow">DELIVERY</p><h2>Notification preferences</h2></div>
-          <button class="icon-button" value="cancel" aria-label="Close preferences" data-icon="x"></button>
+    </header>
+    <section class="hero">
+      <div><p class="eyebrow">NOVU · INCIDENT WORKFLOW</p><h1>One alert. The right person.<br><span>A clear decision.</span></h1></div>
+      <div class="novu-status"><span class="novu-logo">N</span><span><strong>Novu workflow</strong><small id="novu-mode">Preview delivery</small></span></div>
+    </section>
+    <section class="flow" id="flow" aria-label="Workflow progress">
+      <div class="step active" data-step="trigger"><span>01</span><b>Trigger</b><small>Critical event</small></div><i></i>
+      <div class="step" data-step="route"><span>02</span><b>Route</b><small>Channel policy</small></div><i></i>
+      <div class="step" data-step="decide"><span>03</span><b>Decide</b><small>Human action</small></div><i></i>
+      <div class="step" data-step="resolve"><span>04</span><b>Resolve</b><small>Lifecycle update</small></div>
+    </section>
+    <section class="grid">
+      <article class="incident-card">
+        <header class="incident-head">
+          <span class="severity"><i></i></span>
+          <div><p><b>P1 INCIDENT</b><span>INC-2048</span></p><h2>Checkout failures after deploy</h2><small>Payment authorization errors crossed the impact threshold.</small></div>
+          <span class="state" id="incident-state"><i></i><b>Ready</b></span>
         </header>
-        <div id="settings-content"></div>
-      </form>
-    </dialog>
-
-    <script type="module" src="app.js"></script>
-  </body>
+        <div class="metrics">
+          <div><span>Error rate</span><b id="error-rate">12.8%</b><small>+11.6% in 4m</small></div>
+          <div><span>Failed orders</span><b>184</b><small>customers affected</small></div>
+          <div><span>Last deploy</span><b>#8421</b><small>8 minutes ago</small></div>
+          <div><span>Revenue risk</span><b>$8.2k</b><small>per hour</small></div>
+        </div>
+        <section class="workflow-card">
+          <header><div><span class="novu-logo mini">N</span><span><b>critical-incident</b><small>Novu workflow</small></span></div><span class="workflow-state" id="workflow-state">READY</span></header>
+          <div class="workflow-line">
+            <div data-node="event" class="node"><span data-icon="bolt"></span><b>Event</b><small>incident.created</small></div><i></i>
+            <div data-node="inbox" class="node"><span data-icon="inbox"></span><b>Inbox</b><small>Immediate</small></div><i></i>
+            <div data-node="slack" class="node"><span data-icon="hash"></span><b>Slack</b><small>Immediate</small></div><i></i>
+            <div data-node="email" class="node muted"><span data-icon="mail"></span><b>Email</b><small>After 5m</small></div>
+          </div>
+          <div class="payload" id="payload"><span>EVENT PAYLOAD</span><code>{ "severity": "P1", "service": "checkout", "owner": "on-call:maya" }</code></div>
+          <div class="outcome" id="outcome" hidden><span data-icon="check"></span><div><b>Resolution delivered</b><small>Inbox and Slack received the recovery update. Email escalation cancelled.</small></div></div>
+        </section>
+      </article>
+      <aside class="inbox-card">
+        <header><div><p class="eyebrow">ON-CALL INBOX</p><h2>Maya’s decision</h2></div><span class="inbox-state" id="inbox-state"><i></i>Standing by</span></header>
+        <div class="thread" id="thread"><div class="empty" id="empty"><div><span class="novu-logo">N</span></div><b>Waiting for a workflow</b><p>Trigger the incident to see Novu route a decision to the on-call engineer.</p></div></div>
+        <div class="receipts" id="receipts"><span data-channel="Inbox"><i data-icon="inbox"></i>Inbox<small>Ready</small></span><span data-channel="Slack"><i data-icon="hash"></i>Slack<small>Ready</small></span><span data-channel="Email"><i data-icon="mail"></i>Email<small>Fallback</small></span></div>
+        <div class="note-box"><label for="note">Decision note</label><div><input id="note" placeholder="Add context for the timeline…" disabled><button id="send-note" aria-label="Send note" disabled><span data-icon="arrow"></span></button></div></div>
+        <div class="decision-actions"><button id="hold-btn" class="hold-btn" disabled>Hold</button><button id="approve-btn" class="approve-btn" disabled><span data-icon="check"></span>Approve rollback</button></div>
+      </aside>
+    </section>
+  </main>
+  <dialog id="routing-dialog">
+    <form method="dialog">
+      <header><div><p class="eyebrow">SUBSCRIBER PREFERENCES</p><h2>Reach Maya, without noise.</h2></div><button value="cancel" class="close-btn" aria-label="Close"><span data-icon="x"></span></button></header>
+      <p>Urgent approvals fan out now. Routine updates respect quiet hours.</p>
+      <div class="routes">
+        <label><span><i data-icon="inbox"></i><span><b>In-app inbox</b><small>Primary action surface</small></span></span><input type="checkbox" checked><em></em></label>
+        <label><span><i data-icon="hash"></i><span><b>Slack</b><small>#payments-on-call</small></span></span><input type="checkbox" checked><em></em></label>
+        <label><span><i data-icon="mail"></i><span><b>Email fallback</b><small>Only after 5 minutes</small></span></span><input type="checkbox" checked><em></em></label>
+      </div>
+      <div class="quiet-note"><span data-icon="moon"></span><span><b>Quiet hours protected</b><small>P1 decisions bypass quiet hours; everything else waits until 07:00.</small></span></div>
+    </form>
+  </dialog>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <script type="module" src="app.js"></script>
+</body>
 </html>

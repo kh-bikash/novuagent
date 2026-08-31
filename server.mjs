@@ -4,30 +4,33 @@ import { extname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Novu } from '@novu/api';
 
-const port = Number(process.env.PORT || 4173);
-const host = process.env.HOST || '0.0.0.0';
 const root = fileURLToPath(new URL('.', import.meta.url));
-const secretKey = process.env.NOVU_SECRET_KEY?.trim();
+const host = process.env.HOST || '0.0.0.0';
+const port = Number(process.env.PORT || 4173);
 const apiUrl = process.env.NOVU_API_URL?.trim() || 'https://api.novu.co';
+const secretKey = process.env.NOVU_SECRET_KEY?.trim();
 const subscriberId = process.env.NOVU_SUBSCRIBER_ID?.trim() || 'on-call:maya';
-const workflowIds = {
-  'incident-created': process.env.NOVU_WORKFLOW_INCIDENT_CREATED || process.env.NOVU_WORKFLOW_ID || 'critical-incident',
-  'incident-resolved': process.env.NOVU_WORKFLOW_INCIDENT_RESOLVED || 'incident-resolved',
-  'incident-rejected': process.env.NOVU_WORKFLOW_INCIDENT_REJECTED || 'incident-action-rejected',
-  'incident-snoozed': process.env.NOVU_WORKFLOW_INCIDENT_SNOOZED || 'incident-snoozed'
-};
 const novu = secretKey ? new Novu({ secretKey, serverURL: apiUrl }) : null;
+const activeTransactions = new Map();
 
-const types = {
+const workflowIds = {
+  'incident-created': process.env.NOVU_WORKFLOW_INCIDENT_CREATED || 'critical-incident',
+  'operator-note': process.env.NOVU_WORKFLOW_OPERATOR_NOTE || 'incident-note',
+  'incident-approved': process.env.NOVU_WORKFLOW_INCIDENT_APPROVED || 'incident-approved',
+  'incident-resolved': process.env.NOVU_WORKFLOW_INCIDENT_RESOLVED || 'incident-resolved'
+};
+
+const mime = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.png': 'image/png',
   '.mp4': 'video/mp4'
 };
 
-function sendJson(response, status, body) {
+function json(response, status, body) {
   response.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
@@ -36,59 +39,72 @@ function sendJson(response, status, body) {
   response.end(JSON.stringify(body));
 }
 
-async function readJson(request) {
+async function body(request) {
   const chunks = [];
-  let size = 0;
+  let bytes = 0;
   for await (const chunk of request) {
-    size += chunk.length;
-    if (size > 128_000) throw new Error('Request body is too large');
+    bytes += chunk.length;
+    if (bytes > 128_000) throw new Error('Request body exceeds 128 KB');
     chunks.push(chunk);
   }
   return JSON.parse(Buffer.concat(chunks).toString('utf8') || '{}');
 }
 
-async function triggerNovu(request, response) {
+async function dispatch(request, response) {
   try {
-    const { eventName, payload } = await readJson(request);
-    if (typeof eventName !== 'string' || !payload || typeof payload !== 'object') {
-      sendJson(response, 400, { error: 'eventName and payload are required' });
-      return;
-    }
-
-    const workflowId = workflowIds[eventName];
-    if (!workflowId) {
-      sendJson(response, 202, { mode: novu ? 'live' : 'preview', skipped: true, reason: 'This event does not trigger a notification workflow.' });
+    const data = await body(request);
+    const workflowId = workflowIds[data.eventName];
+    if (!workflowId || !data.payload || typeof data.payload !== 'object') {
+      json(response, 400, { error: 'A supported eventName and payload are required.' });
       return;
     }
 
     if (!novu) {
-      sendJson(response, 202, { mode: 'preview', workflowId, subscriberId, accepted: true });
+      json(response, 202, { accepted: true, mode: 'preview', workflowId, subscriberId });
       return;
     }
 
-    await novu.trigger({
+    let cancelledFallback = false;
+    const incidentId = String(data.payload.incidentId || '');
+    if (data.eventName === 'incident-approved' && activeTransactions.has(incidentId)) {
+      await novu.cancel(activeTransactions.get(incidentId));
+      activeTransactions.delete(incidentId);
+      cancelledFallback = true;
+    }
+
+    const result = await novu.trigger({
       workflowId,
       to: [{ subscriberId }],
-      payload: { ...payload, eventName },
-      context: { app: 'relay', environment: process.env.NODE_ENV || 'development' }
+      payload: { ...data.payload, eventName: data.eventName },
+      context: { app: 'beacon', environment: process.env.NODE_ENV || 'development' }
     });
-    sendJson(response, 202, { mode: 'live', workflowId, subscriberId, accepted: true });
+    if (data.eventName === 'incident-created' && incidentId && result?.transactionId) {
+      activeTransactions.set(incidentId, result.transactionId);
+    }
+    json(response, 202, {
+      accepted: true,
+      mode: 'live',
+      workflowId,
+      subscriberId,
+      transactionId: result?.transactionId,
+      cancelledFallback
+    });
   } catch (error) {
-    console.error('[Novu trigger failed]', error);
-    sendJson(response, 502, { error: 'Novu could not accept the workflow trigger.' });
+    console.error('[Novu]', error);
+    json(response, 502, { error: 'Novu could not accept this workflow event.' });
   }
 }
 
 createServer(async (request, response) => {
-  const pathname = decodeURIComponent(new URL(request.url, `http://${request.headers.host}`).pathname);
+  const url = new URL(request.url, 'http://' + (request.headers.host || 'localhost'));
+  const pathname = decodeURIComponent(url.pathname);
 
-  if (pathname === '/api/health' && request.method === 'GET') {
-    sendJson(response, 200, { status: 'ok', novu: novu ? 'live' : 'preview', apiUrl });
+  if (request.method === 'GET' && pathname === '/api/health') {
+    json(response, 200, { status: 'ok', novu: novu ? 'live' : 'preview', apiUrl });
     return;
   }
-
-  if (pathname === '/api/novu/events' && request.method === 'POST') {
-    await triggerNovu(request, response);
+  if (request.method === 'POST' && pathname === '/api/novu/events') {
+    await dispatch(request, response);
     return;
   }
 
@@ -99,14 +115,13 @@ createServer(async (request, response) => {
     response.end('Not found');
     return;
   }
-
   response.writeHead(200, {
-    'Content-Type': types[extname(resolved)] || 'application/octet-stream',
+    'Content-Type': mime[extname(resolved)] || 'application/octet-stream',
     'Cache-Control': 'no-store',
     'X-Content-Type-Options': 'nosniff'
   });
   createReadStream(resolved).pipe(response);
 }).listen(port, host, () => {
-  console.log(`Relay is running at http://127.0.0.1:${port}`);
-  console.log(`Novu mode: ${novu ? `live (${apiUrl})` : 'preview (set NOVU_SECRET_KEY for live delivery)'}`);
+  console.log('Beacon running at http://127.0.0.1:' + port);
+  console.log('Novu: ' + (novu ? 'live via ' + apiUrl : 'preview mode'));
 });

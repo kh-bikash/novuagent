@@ -5,4 +5,5 @@ node_modules/
 .env.*
 !.env.example
 dist/
-videos/relay-launch/
+videos/raw/
+videos/frames/
